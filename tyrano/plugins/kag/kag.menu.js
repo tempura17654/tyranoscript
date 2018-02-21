@@ -554,7 +554,7 @@ tyrano.plugin.kag.menu = {
         if(typeof options =="undefined"){
             options={bgm_over:"false"};
         }else if(typeof options.bgm_over == "undefined"){
-            options={bgm_over:"false"};
+            options.bgm_over="false";
         }
         
         if(options.auto_next){
