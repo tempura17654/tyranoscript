@@ -3499,6 +3499,11 @@ var renderElement = exports.renderElement = function renderElement(element, opti
                 clonedElement = _ref2[1],
                 resourceLoader = _ref2[2];
 
+            // #tyrano_baseのtransform,left,topを切る
+            clonedElement.style.transform = "";
+            clonedElement.style.left = "";
+            clonedElement.style.top = "";
+
             // clonedElementに事前に取得したmatrixを代入しanimationNameを切る
             var arr = clonedElement.children[0].children;
             for (var i = 0; i < arr.length; i++) {
