@@ -407,6 +407,7 @@ tyrano.plugin.kag.menu = {
                     
                     html2canvas(tmp_base.get(0), {
                         
+                        logging:false,
                         height:that.kag.config.scHeight,
                         width:that.kag.config.scWidth
                         
