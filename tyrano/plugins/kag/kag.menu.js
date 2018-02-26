@@ -395,6 +395,12 @@ tyrano.plugin.kag.menu = {
                     var tmp_top = tmp_base.css("top");
                     var tmp_trans = tmp_base.css("transform");
                     
+                    // matrix取得、classNameをキーにして格納
+                    TYRANO.kag.matrix = {};
+                    tmp_base.find(".layer_camera.layer_fore").each(function () {
+                        TYRANO.kag.matrix[this.className] = $(this).css("transform");
+                    });
+                    
                     tmp_base.css("left",0);
                     tmp_base.css("top",0);
                     tmp_base.css("transform", "");

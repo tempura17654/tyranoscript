@@ -3499,6 +3499,14 @@ var renderElement = exports.renderElement = function renderElement(element, opti
                 clonedElement = _ref2[1],
                 resourceLoader = _ref2[2];
 
+            // clonedElementに事前に取得したmatrixを代入しanimationNameを切る
+            var arr = clonedElement.children[0].children;
+            for (var i = 0; i < arr.length; i++) {
+                arr[i].style.transform = TYRANO.kag.matrix[arr[i].className] || "";
+                arr[i].style.animationName = ""
+                arr[i].style.webkitAnimationName = ""
+            }
+
             if (true) {
                 logger.log('Document cloned, using computed rendering');
             }
