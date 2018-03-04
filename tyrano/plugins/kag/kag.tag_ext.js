@@ -2461,50 +2461,47 @@ tyrano.plugin.kag.tag.chara_mod = {
         
         this.kag.preload(folder + storage_url, function() {
             
-            if($(".chara-mod-animation").get(0)){
-                $(".chara-mod-animation_"+pm.name).remove();
+            var CLASS_ANIM = "chara-mod-animation_"+pm.name;
+            var j_anim = $("."+CLASS_ANIM);
+            if (j_anim.size()>0){
+                j_anim.finish();
             }
             
             if (chara_time != "0") {
                 
-                var j_new_img = $(".layer_fore").find("." + pm.name).clone();
+                chara_time = parseInt(that.kag.cutTimeWithSkip(chara_time));
+                var cross_time = chara_time;
+                var j_img = $(".layer_fore").find("." + pm.name);
+                j_img.addClass(CLASS_ANIM);
+                
+                var j_new_img = j_img.clone();
                 j_new_img.find(".chara_img").attr("src", folder + storage_url);
                 j_new_img.css("opacity", 0);
                 
-                
-                var j_img = $(".layer_fore").find("." + pm.name);
-                j_img.addClass("chara-mod-animation_"+pm.name);
                 j_img.after(j_new_img);
     
-                if(pm.cross=="true"){
-                    j_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)), 0, function() {
-                        //alert("完了");
-                    });
+                // 元画像終了コールバック
+                var cb_finish = function () {
+                    $(this).remove();
+                    if(pm.wait=="true"){
+                        that.kag.layer.showEventLayer();
+                        that.kag.ftag.nextOrder();
+                    }
+                }
+                
+                // 元画像
+                // クロスフェードする
+                if (pm.cross=="true") {
+                    j_img.fadeTo(chara_time, 0, cb_finish);
+                }
+                // クロスフェードしない
+                else{
+                    j_img.delay(chara_time).fadeTo(cross_time, 0, cb_finish);
                 }
     
-                j_new_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)), 1, function() {
-                    
-                    if(pm.cross=="false"){
-                        j_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)),0,function(){
-                            
-                            j_img.remove();
-                            
-                            if(pm.wait=="true"){
-                                that.kag.layer.showEventLayer();
-                                that.kag.ftag.nextOrder();
-                            }
-                            
-                        });
-                        
-                    }else{
-                    
-                        j_img.remove();
-                        
-                        if(pm.wait=="true"){
-                            that.kag.layer.showEventLayer();
-                            that.kag.ftag.nextOrder();
-                        }
-                    }
+                // 新画像
+                j_new_img.fadeTo(chara_time, 1, function() {
+                    $(this).removeClass(CLASS_ANIM);
                 });
     
             } else {
