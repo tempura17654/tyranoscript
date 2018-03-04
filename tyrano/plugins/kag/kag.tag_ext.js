@@ -2863,12 +2863,21 @@ tyrano.plugin.kag.tag.chara_part = {
 
     pm : {
         name : "",
-        allow_storage: "false"
+        allow_storage: "false",
+        time : "",
+        wait : "true"
     },
 
     start : function(pm) {
         
         var that = this;
+        
+        // フェード時間の決定
+        var chara_time = this.kag.stat.chara_time;
+        if (pm.time != "") {
+            chara_time = parseInt(pm.time);
+        }
+        //chara_time = 1000;
         
         var cpm = this.kag.stat.charas[pm.name];    
         
@@ -2898,18 +2907,21 @@ tyrano.plugin.kag.tag.chara_part = {
                 if(chara_part[key][part_id]){
                     
                     var part = chara_part[key][part_id];
-                    part.id = part_id;
-                    map_part[key] = part;
-                    //partの中で指定された画像を表示する
-                    
-                    if(part["storage"] != "none"){
-                        array_storage.push("./data/fgimage/" + part["storage"]);
+                    // 切り替わるパーツだけ
+                    if (this.kag.stat.charas[pm.name]["_layer"][key]["current_part_id"] != part_id) {
+                        part.id = part_id;
+                        map_part[key] = part;
+                        //partの中で指定された画像を表示する
+                        
+                        if(part["storage"] != "none"){
+                            array_storage.push("./data/fgimage/" + part["storage"]);
+                        }
+                        
+                        part_num++;
+                        
+                        //デフォルトのパートを変更する
+                        this.kag.stat.charas[pm.name]["_layer"][key]["current_part_id"] = part_id;
                     }
-                    
-                    part_num++;
-                    
-                    //デフォルトのパートを変更する
-                    this.kag.stat.charas[pm.name]["_layer"][key]["current_part_id"] = part_id;
                     
                 }else{
                     
@@ -2923,28 +2935,74 @@ tyrano.plugin.kag.tag.chara_part = {
                 
         }
         
+        // 変えるべきパーツがなければもう終わり
+        if (part_num==0) {
+            return this.kag.ftag.nextOrder();
+        }
+        
         var target_obj = $(".layer_fore").find("." + pm.name + ".tyrano_chara");
         
         //プリロード
         this.kag.preloadAll(array_storage, function() {
+            var cnt=0;
+            
+            // アニメーション中の画像が存在していれば即刻フィニッシュ
+            var CLASS_ANIM = "chara-part-animation";
+            var j_anim = target_obj.find("." + CLASS_ANIM);
+            if (j_anim.size() > 0) {
+                j_anim.finish();
+            }
+            // フェードアウト完了コールバック
+            var cb_remove = function() {
+                $(this).remove();
+            };
+            // フェードイン完了コールバック
+            var cb_add = function() {
+                $(this).removeClass(CLASS_ANIM);
+                cnt++;
+                if(pm.wait=="true"&&part_num==cnt){
+                    that.kag.ftag.nextOrder();
+                }
+            };
             
             //指定された配列を回して、該当するオブジェクトを切り替える
-            var cnt=0;
             for(key in map_part){
-                
-                cnt++;
                 
                 var part = map_part[key];
                 var j_img = target_obj.find(".part"+"." + key + "");
                 
-                if(part.storage!="none"){
-                    j_img.attr("src","./data/fgimage/" + part.storage);
-                }else{
-                    j_img.attr("src", "./tyrano/images/system/transparent.png");
+                // アニメーションしない
+                if(chara_time==0){
+                    if(part.storage!="none"){
+                        j_img.attr("src","./data/fgimage/" + part.storage);
+                    }else{
+                        j_img.attr("src", "./tyrano/images/system/transparent.png");
+                    }
+                    cnt++;
+                    if(part_num==cnt){
+                        that.kag.ftag.nextOrder();
+                    }
                 }
-                
-                if(part_num==cnt){
-                    that.kag.ftag.nextOrder();
+                // アニメーションする
+                else{
+                    //アニメーション中という目印
+                    j_img.addClass(CLASS_ANIM);
+                    //クローン作成＋ソース変更＋透明化＋挿入
+                    var j_new_img = j_img.clone();
+                    if(part.storage!="none"){
+                        j_new_img.attr("src","./data/fgimage/" + part.storage);
+                    }else{
+                        j_new_img.attr("src", "./tyrano/images/system/transparent.png");
+                    }
+                    j_new_img.css("opacity",0);
+                    j_img.after(j_new_img);
+                    //元画像フェードアウト
+                    j_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)),0,cb_remove);
+                    //新画像フェードイン
+                    j_new_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)),1,cb_add);
+                    if(pm.wait!="true"&&part_num==cnt){
+                        that.kag.ftag.nextOrder();
+                    }
                 }
                 
             }
