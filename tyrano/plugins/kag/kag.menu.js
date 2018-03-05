@@ -664,11 +664,11 @@ tyrano.plugin.kag.menu = {
         }
         
         //mod中のキャラクター復旧
-        var j_remove = $(".willbe_remove");
+        var j_remove = $(".willbe-remove");
         if (j_remove.size()>0) {
             j_remove.remove();
         }
-        var j_fadein = $(".willbe_fadein");
+        var j_fadein = $(".willbe-fadein");
         if (j_fadein.size()>0) {
             j_fadein.css("opacity", 1);
         }

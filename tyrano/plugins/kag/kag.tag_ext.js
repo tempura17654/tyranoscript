@@ -2500,8 +2500,8 @@ tyrano.plugin.kag.tag.chara_mod = {
             
             var CLASS_ANIM = "chara-mod-animation";
             var CLASS_ANIM2 = "chara-mod-animation-"+pm.name;
-            var CLASS_REMOVE = "willbe_remove";
-            var CLASS_FADEIN = "willbe_fadein";
+            var CLASS_REMOVE = "willbe-remove";
+            var CLASS_FADEIN = "willbe-fadein";
             var j_anim = $("."+CLASS_ANIM2);
             if (j_anim.size()>0){
                 j_anim.finish();
@@ -3006,8 +3006,8 @@ tyrano.plugin.kag.tag.chara_part = {
             // アニメーション中の画像が存在していれば即刻フィニッシュ
             var CLASS_ANIM = "chara-mod-animation";
             var CLASS_ANIM2 = "chara-mod-animation-"+pm.name;
-            var CLASS_REMOVE = "willbe_remove";
-            var CLASS_FADEIN = "willbe_fadein";
+            var CLASS_REMOVE = "willbe-remove";
+            var CLASS_FADEIN = "willbe-fadein";
             var j_anim = target_obj.find("." + CLASS_ANIM2);
             if (j_anim.size() > 0) {
                 j_anim.finish();
