@@ -1784,6 +1784,12 @@ tyrano.plugin.kag.tag.chara_show = {
 
         var that = this;
 
+        // アニメーション中のキャラが居れば強制完了
+        var j_anim = that.kag.layer.getLayer(pm.layer, pm.page).find(".chara-mod-animation");
+        if (j_anim.size()>0) {
+            j_anim.finish();
+        }
+
         var cpm = this.kag.stat.charas[pm.name];
         
         var array_storage = [];
@@ -1982,6 +1988,8 @@ tyrano.plugin.kag.tag.chara_show = {
                     tmp_base += base;
 
                     var j_chara = $(this);
+                    //クラス追加
+                    j_chara.addClass("chara-mod-animation");
                     //この分をプラスする感じですね
                     center = Math.floor(parseInt(j_chara.css("width")) / 2);
                     //1つ目は主人公にゆずる
@@ -1995,6 +2003,7 @@ tyrano.plugin.kag.tag.chara_show = {
 
                             j_chara.fadeTo(parseInt(that.kag.cutTimeWithSkip(that.kag.stat.pos_change_time)), 1, function() {
 
+                                $(this).removeClass("chara-mod-animation");
                                 chara_num--;
                                 if (chara_num == 0) {
                                     that.kag.layer.showEventLayer();
@@ -2011,6 +2020,7 @@ tyrano.plugin.kag.tag.chara_show = {
                         j_chara.animate({
                             left : left
                         }, parseInt(that.kag.cutTimeWithSkip(that.kag.stat.pos_change_time)), that.kag.stat.chara_effect, function() {
+                            $(this).removeClass("chara-mod-animation");
                             chara_num--;
                             if (chara_num == 0) {
                                 that.kag.layer.showEventLayer();
@@ -2036,6 +2046,8 @@ tyrano.plugin.kag.tag.chara_show = {
             //オブジェクトにクラス名をセットします name属性は一意でなければなりません
             $.setName(j_chara_root, cpm.name);
             j_chara_root.addClass("tyrano_chara");
+            // クラス追加
+            j_chara_root.addClass("chara-mod-animation willbe-fadein");
             //キャラクター属性を付与。
 
             //新しいスタイルの定義
@@ -2065,7 +2077,10 @@ tyrano.plugin.kag.tag.chara_show = {
                 duration : parseInt(that.kag.cutTimeWithSkip(pm.time)),
                 easing : that.kag.stat.chara_effect,
                 complete : function() {
-
+                    
+                    // クラス除去
+                    $(this).removeClass("chara-mod-animation willbe-fadein");
+                    
                     chara_num--;
                     if (chara_num == 0) {
                         that.kag.layer.showEventLayer();
@@ -2125,7 +2140,16 @@ tyrano.plugin.kag.tag.chara_hide = {
 
         var target_layer = this.kag.layer.getLayer(pm.layer, pm.page);
 
+        // アニメーション中のキャラが居れば強制完了
+        var j_anim = target_layer.find(".chara-mod-animation");
+        if (j_anim.size()>0) {
+            j_anim.finish();
+        }
+
         var img_obj = target_layer.find("." + pm.name);
+
+        // クラス追加
+        img_obj.addClass("chara-mod-animation willbe-remove");
 
         var chara_num = 0;
         that.kag.layer.hideEventLayer();
@@ -2168,6 +2192,8 @@ tyrano.plugin.kag.tag.chara_hide = {
                         tmp_base += base;
 
                         var j_chara = $(this);
+                        //クラス追加
+                        j_chara.addClass("chara-mod-animation");
                         //この分をプラスする感じですね
                         var center = Math.floor(parseInt(j_chara.css("width")) / 2);
                         //1つ目は主人公にゆずる
@@ -2181,6 +2207,7 @@ tyrano.plugin.kag.tag.chara_hide = {
 
                                 j_chara.fadeTo(parseInt(that.kag.cutTimeWithSkip(that.kag.stat.pos_change_time)), 1, function() {
 
+                                    $(this).removeClass("chara-mod-animation");
                                     chara_num--;
                                     if (chara_num == 0) {
                                         that.kag.layer.showEventLayer();
@@ -2198,6 +2225,7 @@ tyrano.plugin.kag.tag.chara_hide = {
                                 left : left
                             }, parseInt(that.kag.cutTimeWithSkip(that.kag.stat.pos_change_time)), that.kag.stat.chara_effect, function() {
 
+                                $(this).removeClass("chara-mod-animation");
                                 chara_num--;
                                 if (chara_num == 0) {
                                     that.kag.layer.showEventLayer();
@@ -2277,9 +2305,18 @@ tyrano.plugin.kag.tag.chara_hide_all = {
         var that = this;
 
         var target_layer = this.kag.layer.getLayer(pm.layer, pm.page);
+        
+        // アニメーション中のキャラが居れば強制完了
+        var j_anim = target_layer.find(".chara-mod-animation");
+        if (j_anim.size()>0) {
+            j_anim.finish();
+        }
 
         var img_obj = target_layer.find(".tyrano_chara");
 
+        // クラス追加
+        img_obj.addClass("chara-mod-animation willbe-remove");
+        
         var chara_num = 0;
         that.kag.layer.hideEventLayer();
         var flag_complete = false;
@@ -2461,8 +2498,11 @@ tyrano.plugin.kag.tag.chara_mod = {
         
         this.kag.preload(folder + storage_url, function() {
             
-            var CLASS_ANIM = "chara-mod-animation_"+pm.name;
-            var j_anim = $("."+CLASS_ANIM);
+            var CLASS_ANIM = "chara-mod-animation";
+            var CLASS_ANIM2 = "chara-mod-animation-"+pm.name;
+            var CLASS_REMOVE = "willbe_remove";
+            var CLASS_FADEIN = "willbe_fadein";
+            var j_anim = $("."+CLASS_ANIM2);
             if (j_anim.size()>0){
                 j_anim.finish();
             }
@@ -2472,12 +2512,21 @@ tyrano.plugin.kag.tag.chara_mod = {
                 chara_time = parseInt(that.kag.cutTimeWithSkip(chara_time));
                 var cross_time = chara_time;
                 var j_img = $(".layer_fore").find("." + pm.name);
-                j_img.addClass(CLASS_ANIM);
+                // 複数見つかった場合はj_anim.finish()ですでに削除済のはずだが、
+                // 万が一を考え絶対増殖対策しないように
+                if (j_img.size()>1) {
+                    var j_last = j_img.last();
+                    j_img.not(j_last).remove();
+                    j_img = j_last;
+                }
+                j_img.addClass(CLASS_ANIM).addClass(CLASS_ANIM2);
                 
                 var j_new_img = j_img.clone();
+                j_new_img.addClass(CLASS_FADEIN);
                 j_new_img.find(".chara_img").attr("src", folder + storage_url);
                 j_new_img.css("opacity", 0);
                 
+                j_img.addClass(CLASS_REMOVE);
                 j_img.after(j_new_img);
     
                 // 元画像終了コールバック
@@ -2501,7 +2550,7 @@ tyrano.plugin.kag.tag.chara_mod = {
     
                 // 新画像
                 j_new_img.fadeTo(chara_time, 1, function() {
-                    $(this).removeClass(CLASS_ANIM);
+                    $(this).removeClass(CLASS_ANIM+" "+CLASS_ANIM2+" "+CLASS_FADEIN);
                 });
     
             } else {
@@ -2611,6 +2660,12 @@ tyrano.plugin.kag.tag.chara_move = {
         var target_obj = $(".layer_fore").find("." + pm.name + ".tyrano_chara");
         var target_img = $(".layer_fore").find("." + pm.name + ".tyrano_chara").find("img");
         
+        // アニメーション中のキャラが居れば強制完了
+        var j_anim = $(".layer_fore").find(".chara-mod-animation");
+        if (j_anim.size()>0) {
+            j_anim.finish();
+        }
+        
         var anim_style = {};
         var img_anim_style = {};
 
@@ -2633,9 +2688,13 @@ tyrano.plugin.kag.tag.chara_move = {
 
         if (pm.name != "") {
             
+            // クラスの追加
+            target_obj.addClass("chara-mod-animation");
+            
             if(pm.anim=="true"){
                 target_obj.animate(anim_style, parseInt(pm.time), pm.effect, function() {
                     
+                    target_obj.removeClass("chara-mod-animation");
                     if(pm.wait=="true"){
                         that.kag.ftag.nextOrder();
                     }
@@ -2655,6 +2714,7 @@ tyrano.plugin.kag.tag.chara_move = {
                     target_img.css(img_anim_style);
                     
                     target_obj.fadeTo(parseInt(that.kag.cutTimeWithSkip(pm.time))/2, 1,function(){
+                        target_obj.removeClass("chara-mod-animation");
                         if(pm.wait=="true"){
                             that.kag.ftag.nextOrder();
                         }
@@ -2944,8 +3004,11 @@ tyrano.plugin.kag.tag.chara_part = {
             var cnt=0;
             
             // アニメーション中の画像が存在していれば即刻フィニッシュ
-            var CLASS_ANIM = "chara-part-animation";
-            var j_anim = target_obj.find("." + CLASS_ANIM);
+            var CLASS_ANIM = "chara-mod-animation";
+            var CLASS_ANIM2 = "chara-mod-animation-"+pm.name;
+            var CLASS_REMOVE = "willbe_remove";
+            var CLASS_FADEIN = "willbe_fadein";
+            var j_anim = target_obj.find("." + CLASS_ANIM2);
             if (j_anim.size() > 0) {
                 j_anim.finish();
             }
@@ -2955,10 +3018,12 @@ tyrano.plugin.kag.tag.chara_part = {
             };
             // フェードイン完了コールバック
             var cb_add = function() {
-                $(this).removeClass(CLASS_ANIM);
-                cnt++;
-                if(pm.wait=="true"&&part_num==cnt){
-                    that.kag.ftag.nextOrder();
+                $(this).removeClass(CLASS_ANIM+" "+CLASS_ANIM2+" "+CLASS_FADEIN);
+                if(pm.wait=="true"){
+                    cnt++;
+                    if(part_num==cnt){
+                        that.kag.ftag.nextOrder();
+                    }
                 }
             };
             
@@ -2967,6 +3032,14 @@ tyrano.plugin.kag.tag.chara_part = {
                 
                 var part = map_part[key];
                 var j_img = target_obj.find(".part"+"." + key + "");
+                // 複数見つかった場合はj_anim.finish()ですでに削除済のはずだが、
+                // 万が一を考え絶対増殖対策しないように
+                if (j_img.size()>1) {
+                    var j_last = j_img.last();
+                    j_img.not(j_last).remove();
+                    j_img = j_last;
+                }
+                chara_time = parseInt(that.kag.cutTimeWithSkip(chara_time));
                 
                 // アニメーションしない
                 if(chara_time==0){
@@ -2983,22 +3056,27 @@ tyrano.plugin.kag.tag.chara_part = {
                 // アニメーションする
                 else{
                     //アニメーション中という目印
-                    j_img.addClass(CLASS_ANIM);
+                    j_img.addClass(CLASS_ANIM).addClass(CLASS_ANIM2);
                     //クローン作成＋ソース変更＋透明化＋挿入
                     var j_new_img = j_img.clone();
+                    j_new_img.addClass(CLASS_FADEIN);
                     if(part.storage!="none"){
                         j_new_img.attr("src","./data/fgimage/" + part.storage);
                     }else{
                         j_new_img.attr("src", "./tyrano/images/system/transparent.png");
                     }
                     j_new_img.css("opacity",0);
+                    j_img.addClass(CLASS_REMOVE);
                     j_img.after(j_new_img);
                     //元画像フェードアウト
-                    j_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)),0,cb_remove);
+                    j_img.fadeTo(chara_time,0,cb_remove);
                     //新画像フェードイン
-                    j_new_img.fadeTo(parseInt(that.kag.cutTimeWithSkip(chara_time)),1,cb_add);
-                    if(pm.wait!="true"&&part_num==cnt){
-                        that.kag.ftag.nextOrder();
+                    j_new_img.fadeTo(chara_time,1,cb_add);
+                    if(pm.wait!="true"){
+                        cnt++;
+                        if(part_num==cnt){
+                            that.kag.ftag.nextOrder();
+                        }
                     }
                 }
                 

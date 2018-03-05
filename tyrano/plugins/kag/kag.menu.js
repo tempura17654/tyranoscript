@@ -663,6 +663,16 @@ tyrano.plugin.kag.menu = {
             };
         }
         
+        //mod中のキャラクター復旧
+        var j_remove = $(".willbe_remove");
+        if (j_remove.size()>0) {
+            j_remove.remove();
+        }
+        var j_fadein = $(".willbe_fadein");
+        if (j_fadein.size()>0) {
+            j_fadein.css("opacity", 1);
+        }
+        
         //カメラ設定を復旧 ///////////////
         if(this.kag.config.useCamera=="true"){
             
